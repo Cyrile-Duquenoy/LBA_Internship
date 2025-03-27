@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 N = 10
 dx = 1/(N-1)
 
-T = 10
+T = 30
 dt = 0.1
 t = np.arange(0, T + dt, dt)
 
@@ -78,6 +78,9 @@ def laplacian(C, dx):
 def fibro_reac(F, C, sat_f, dt, fibro_prod, fibro_death, chi):
     return F + dt*( fibro_prod*C*(1 - F/sat_f) - chi*laplacian(C,dx) - fibro_death*F )
 
+# %%
+    
+
 def plot_F_C(F, C, i, t, max_val):
     plt.clf()  # Effacer la figure précédente
     
@@ -102,9 +105,9 @@ def plot_F_C(F, C, i, t, max_val):
     '''
 
     plt.pause(0.01)  # Pause pour mise à jour dynamique
+    
+# %% PARAM.
 
-
-# PARAM.
 cyto_prod = 1
 cyto_death = 1
 fibro_prod = 1
@@ -117,7 +120,8 @@ fib_norm = []
 
 Index = []
 
-##################################### Time Iterations #########################
+# %% Time Iterations
+
 if is_cfl(lbda_C) and is_cfl(lbda_F): # Verify CFL conditions
     A_C = mat(N, lbda_C)
     A_F = mat(N, lbda_F)
@@ -128,6 +132,14 @@ if is_cfl(lbda_C) and is_cfl(lbda_F): # Verify CFL conditions
     for i in range(1,len(t)):
         C = np.dot(A_C, C)
         C = cyto_reac(C, F, dt, cyto_prod, cyto_death)
+        
+# %% Repetitive Trauma Simulation
+
+        if i%100 == 0:
+            C+=cyto_init(x)
+            
+# %% 
+        
         m_c = min(C)
         
         cytok_norm.append(max(C))
@@ -137,14 +149,17 @@ if is_cfl(lbda_C) and is_cfl(lbda_F): # Verify CFL conditions
         F = fibro_reac(F, C, sat_f, dt, fibro_prod, fibro_death, chi)
         m_f = min(F)
         
+        # Controle negative value
         if (m_c < 0 or m_f < 0):
             print("Erreur : Valeur négative")
             
         Index.append(np.argmax(F)/N)
     
-        plot_F_C(F, C, i, t, 5e-2)  # Mise à jour du plot
+        plot_F_C(F, C, i, t, 5.5e-2)  # Plot
     
-    plt.show()  # Affichage final
+    plt.show()  # Final Plot
+    
+# %% Plot
     
 plt.figure()
 plt.plot(t[:len(cytok_norm)], cytok_norm, label="Val. max Cyto. / Jour")
