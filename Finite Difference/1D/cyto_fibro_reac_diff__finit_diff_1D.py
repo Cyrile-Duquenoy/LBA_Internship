@@ -9,8 +9,9 @@ fibro_prod = 1
 fibro_death = 0.1
 sat_f = 1
 chi = 2
-coll_prod = 0.8
-coll_death = 0.5
+chi_coll = 1
+coll_prod = 0.6
+coll_death = 0.6
 sat_coll = 1
 
 cytok_norm = []
@@ -27,7 +28,7 @@ L = 1
 x = np.linspace(0,L,N)
 
 # Time Discret
-T = 70
+T = 40
 dt = 0.1
 t = np.arange(0, T + dt, dt)
 
@@ -119,12 +120,13 @@ Coll = coll_init(x)
 
 def laplacian(U, dx):
     U_new = np.zeros_like(U)
-    for i in range(1, len(C)-1):
+    for i in range(1, len(U)-1):
         U_new[i] = (U_new[i-1] - 2*U_new[i] + U_new[i+1]) / (dx**2)
     U_new[0] = U_new[1]
     U_new[-1] = U_new[-2]
-    return U
+    return U_new
 
+    
 # %% Plot Function
 
 def plot_F_C(F, C, Coll, i, t, max_val):
