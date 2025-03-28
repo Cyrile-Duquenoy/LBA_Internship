@@ -17,12 +17,11 @@ sat_coll = 1
 cytok_norm = []
 fib_norm = []
 coll_norm = []
-Index = []
 
 #%%
 
 # Space Discret.
-N = 10
+N = 11
 dx = 1/(N-1)
 L = 1
 x = np.linspace(0,L,N)
@@ -37,14 +36,14 @@ D_F = 1.46e-7
 D_C = 2.58e-2
 D_Coll = 4.59e-13
 
-def is_cfl(lbda):
+def is_cfl(lbda:float)->bool:
     if lbda <= 1/2:
         print("\n Condition CFL : ", True)
     else : 
         print("\n Condition CFL : ", False)
     return lbda <= 1/2
 
-def lbda(D,dt,dx):
+def lbda(D:float, dt:float, dx:float)->float:
     return D * dt / (dx)**2
 
 lbda_C = lbda(D_C, dt, dx)
@@ -52,7 +51,7 @@ lbda_F = lbda(D_F, dt, dx)
 lbda_Coll = lbda(D_Coll, dt, dx)
 
 # %%
-def mat(N,lbda):
+def mat(N:int, lbda:float)->list:
     d = np.ones(N)*(1 - 2*lbda)
     d[0] = (1 - lbda)
     d[-1] = d[0]
@@ -61,16 +60,16 @@ def mat(N,lbda):
 
 #%%
 
-def cyto(x):
+def cyto(x:float)->float:
     return x*(1-x)*1.13e-1
 
-def cyto_init(x):
+def cyto_init(x:list)->list:
     U = []
     for i in range(len(x)):
         U.append(cyto(x[i]))
     return U
 
-def cyto_reac(C, F, dt, cyto_prod, cyto_death):
+def cyto_reac(C:list, F:list, dt:float, cyto_prod:float, cyto_death:float)->list:
     C += dt*C*F*cyto_prod - dt*C*cyto_death
     return C
 
@@ -82,16 +81,16 @@ plt.show()
 
 #%%
 
-def fibro(x):
+def fibro(x:float)->float:
     return 1e-4
     
-def fibro_init(x):
+def fibro_init(x:list)->list:
     U = []
     for i in range(len(x)):
         U.append(fibro(x[i]))
     return U
 
-def fibro_reac(F, C, sat_f, dt, fibro_prod, fibro_death, chi):
+def fibro_reac(F:list, C:list, sat_f:float, dt:float, fibro_prod:float, fibro_death:float, chi:float):
     return F + dt*( fibro_prod*C*(1 - F/sat_f) - chi*laplacian(C,dx) - fibro_death*F )
     
 F = fibro_init(x)
@@ -102,23 +101,23 @@ plt.show()
 
 #%%
 
-def coll(x):
+def coll(x:float)->float:
     return 0
 
-def coll_init(x):
+def coll_init(x:list)->list:
     U = []
     for i in range(len(x)):
         U.append(coll(x[i]))
     return U
 
-def coll_reac(Coll, F, dt, coll_prod, coll_death):
+def coll_reac(Coll:list, F:list, dt:float, coll_prod:float, coll_death:float)->list:
     return Coll + dt*(coll_prod*F*(1 - Coll/sat_coll) - laplacian(F, dx) - coll_death*Coll)
 
 Coll = coll_init(x)
 
 # %%
 
-def laplacian(U, dx):
+def laplacian(U:list, dx:float)->list:
     U_new = np.zeros_like(U)
     for i in range(1, len(U)-1):
         U_new[i] = (U_new[i-1] - 2*U_new[i] + U_new[i+1]) / (dx**2)
@@ -129,7 +128,7 @@ def laplacian(U, dx):
     
 # %% Plot Function
 
-def plot_F_C(F, C, Coll, i, t, max_val):
+def plot_F_C(F:list, C:list, Coll:list, i:int, t:list, max_val:float):
     plt.clf()  # Suppr. Previous Figure
     min_val = 0
     plt.subplot(1, 3, 1)
@@ -154,7 +153,6 @@ if is_cfl(lbda_C) and is_cfl(lbda_F): # Verify CFL conditions
     cytok_norm.append(max(C))
     fib_norm.append(max(F))
     coll_norm.append(max(Coll))
-    Index.append(np.argmax(F)/N)
     
     plt.figure(figsize=(10, 5))
     max_val = max(max(C), max(F))
@@ -185,8 +183,6 @@ if is_cfl(lbda_C) and is_cfl(lbda_F): # Verify CFL conditions
         # Negative Value Controle
         if (m_c < 0 or m_f < 0):
             print("Erreur : Valeur négative")
-            
-        Index.append(np.argmax(F)/N)
         
         plot_F_C(F, C, Coll, i, t, max_val)  # Plot current iteration
     
@@ -204,13 +200,6 @@ plt.legend()
 plt.grid()
 plt.show()
 
-'''
-plt.plot(t,Index)
-plt.title("Emplacement du max de fibro.")
-plt.xlabel("Temps (j)")
-plt.ylabel("x")
-plt.show()
-'''
 
     
 
