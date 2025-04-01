@@ -1,15 +1,17 @@
-with open('test.txt', 'r') as f:
-    contenu = f.readlines() # Lit le contenu ligne par ligne
+if __name__ == "__main__":
 
-for lines in contenu:
-    print(lines)
+    with open('test.txt', 'r') as f:
+        contenu = f.readlines() # Lit le contenu ligne par ligne
     
-contenu = "\nAjouter une ligne"
-with open('test.txt', 'a') as f:
-    f.write(contenu)
+    for lines in contenu:
+        print(lines)
+        
+    contenu = "\nAjouter une ligne"
+    with open('test.txt', 'a') as f:
+        f.write(contenu)
+        
+    with open('test.txt', 'r') as f:
+        contenu = f.readlines() # Lit le contenu ligne par ligne
     
-with open('test.txt', 'r') as f:
-    contenu = f.readlines() # Lit le contenu ligne par ligne
-
-for lines in contenu:
-    print(lines)
+    for lines in contenu:
+        print(lines)

@@ -37,4 +37,3 @@ if __name__ == "__main__":
     P1 = part(1)
     P1.add_element(1, e1)
     print(P1.get_element(1).get_nodes())
-s

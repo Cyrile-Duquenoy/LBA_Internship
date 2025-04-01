@@ -33,11 +33,20 @@ class element:
         
     def set_part(self, i:int):
         self.part_ = i
+    
+    
+    ''' To write a line as an element in the .feb file '''
+    def to_print(self) -> str:
+        to_print = f'<elem id="{self.get_id()}">{self.get_nodes()}</elem>'
+        to_print = to_print.translate(str.maketrans("[", "]", ""))
+        return to_print
+        
         
 if __name__ == "__main__":
     e1 = element(10, [1,2,3,4,5,6,7,8], 8, 1)    
     x = e1.get_nodes()
     print(x)    
+    print(e1.to_print())
     
 
 
