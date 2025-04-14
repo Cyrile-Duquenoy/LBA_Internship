@@ -32,16 +32,16 @@ def is_negative(U:list)->bool:
 #%%
 
 fib = 1e-2
-
 fib_prod = 1
 fib_death = 0.1
 cyto_prod = 1
 cyto_death = 1
-coll_prod = 1e-13
+coll_prod = 0.6
 coll_death = 0.6
 chi = 2
 sat_F = 1
 coll_sat = 1
+chi_coll = 1e-10
 
 #%%
 def cyto(x:float, y:float, N)->float:
@@ -112,20 +112,11 @@ def coll_init(x:list, y:list)->list:
     return U
 
 def coll_reac(Coll, F, coll_prod, coll_death, sat_coll, N, dx):
-    return coll_prod*F*(1 - Coll) - coll_death*Coll - Coll*laplacian(F, dx)
+    return coll_prod*F*(1 - Coll/sat_coll) - coll_death*Coll - chi_coll*Coll*laplacian(F, dx)
     
 Coll = coll_init(x, y)
 
 #%%
-
-'''
-def mat_diff(N:int, lbda:float)->list:
-    d = np.ones(N)*(1 - 2*lbda)
-    d1 = np.ones(N-1)*(lbda)
-    A = np.diag(d) + np.diag(d1, 1) + np.diag(d1, -1)
-    I = np.eye(N)
-    return np.kron(A, I) + np.kron(I, A) - np.eye(N*N)
-'''
 
 def mat_diff(N:int, lbda:float)->list:
     size = N**2
@@ -133,7 +124,6 @@ def mat_diff(N:int, lbda:float)->list:
     d1 = np.ones(size - 1)*(lbda)
     d2 = np.ones(size - N)*(lbda)
     return np.diag(d) + np.diag(d1, 1) + np.diag(d1, -1) + np.diag(d2, N) + np.diag(d2, -N)
-
 
 if(is_cfl(lbda_C) and is_cfl(lbda_F) and is_cfl(lbda_Coll)):
     L_C = mat_diff(N, lbda_C)
@@ -166,7 +156,10 @@ if(is_cfl(lbda_C) and is_cfl(lbda_F) and is_cfl(lbda_Coll)):
         Coll += dt*coll_reac(Coll, F, coll_prod, coll_death, coll_sat, N, dx)
         Coll_norm.append(np.max(Coll))
         
+        print("Iteration ", i)
         print("F has a negative value : ", is_negative(F))
+        print("C has a negative value : ", is_negative(C))
+        print("Coll has a negative value : ", is_negative(Coll))
         print("\n")
         
         # Création de la figure avec deux sous-graphes côte à côte
@@ -197,16 +190,12 @@ if(is_cfl(lbda_C) and is_cfl(lbda_F) and is_cfl(lbda_Coll)):
         ax1.set_title(f"Collagène (C) - day {day}")
         ax1.set_xlabel("x")
         ax1.set_ylabel("y")
-        ax1.set_zlabel("Coll")
-        
-        plt.pause(0.1)
-        
+        ax1.set_zlabel("Coll") 
+        #plt.pause(0.1)
         plt.show()
         
 plt.plot(t, F_norm, label='F_norm')
-plt.show()
 plt.plot(t, C_norm, label='C_norm')
-plt.show()
 plt.plot(t, Coll_norm, label='Coll_norm')
 plt.show()
     
