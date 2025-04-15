@@ -45,7 +45,7 @@ chi_coll = 1e-10
 
 #%%
 def cyto(x:float, y:float, N)->float:
-    return 1.13e-1
+    return (x*(1-x)+y*(1-y))*1.13e-1
 
 def cyto_init(x:list,y:list,rho:float):
     x0, y0 = len(x) // 2, len(y) // 4
@@ -156,11 +156,16 @@ if(is_cfl(lbda_C) and is_cfl(lbda_F) and is_cfl(lbda_Coll)):
         Coll += dt*coll_reac(Coll, F, coll_prod, coll_death, coll_sat, N, dx)
         Coll_norm.append(np.max(Coll))
         
-        print("Iteration ", i)
-        print("F has a negative value : ", is_negative(F))
-        print("C has a negative value : ", is_negative(C))
-        print("Coll has a negative value : ", is_negative(Coll))
-        print("\n")
+        if (is_negative(C) or is_negative(F) or is_negative(Coll)):
+            print("Iteration ", i, "day ", day)
+            print("F has a negative value : ", is_negative(F))
+            print("C has a negative value : ", is_negative(C))
+            print("Coll has a negative value : ", is_negative(Coll))
+            print("Min of C : ", np.min(C))
+            print("Min of F : ", np.min(F))
+            print("Min of Coll : ", np.min(Coll))
+            print("\n")
+        
         
         # Création de la figure avec deux sous-graphes côte à côte
         fig = plt.figure(figsize=(10, 10))
@@ -194,8 +199,13 @@ if(is_cfl(lbda_C) and is_cfl(lbda_F) and is_cfl(lbda_Coll)):
         #plt.pause(0.1)
         plt.show()
         
-plt.plot(t, F_norm, label='F_norm')
-plt.plot(t, C_norm, label='C_norm')
-plt.plot(t, Coll_norm, label='Coll_norm')
+plt.plot(t, F_norm, label='Fibro.')
+plt.plot(t, C_norm, label='Cyto.')
+plt.plot(t, Coll_norm, label='Coll.')
+plt.xlabel("Temps (j)")
+plt.ylabel("Max/jour")
+plt.title("Val. max Fibro. & Cyto. & Coll.")
+plt.legend()
+plt.grid()
 plt.show()
     
