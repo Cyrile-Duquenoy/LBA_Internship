@@ -10,5 +10,8 @@ Le couplage des deux modèles travaille actuellement sur le même maillage.
 - Interpolation des solutions si maillage plus fin.
 
 ## Librairies Pythons demandées :
+- numpy
+- matplotlib
 - febio_python
 - vtk
+- tqdm
