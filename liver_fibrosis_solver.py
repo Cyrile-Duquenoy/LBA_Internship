@@ -272,6 +272,36 @@ class Liver_Fibrosis_Solver(Export):
         death = self.cyto_death * C
         #return self.cyto_prod * F * C - self.cyto_death * C
         return prod - death
+
+    def chemotaxis_term_diff(self, F, C, chi, dx, N):
+        chi_F = chi * F 
+        div_chiF_gradC = np.zeros((N, N, N))
+        
+        for i in range(1, N - 1):
+            for j in range(1, N - 1):
+                for k in range(1, N - 1):
+                    dCdx = (C[i + 1, j, k] - C[i - 1, j, k]) / (2 * dx)
+                    dCdy = (C[i, j + 1, k] - C[i, j - 1, k]) / (2 * dx)
+                    dCdz = (C[i, j, k + 1] - C[i, j, k - 1]) / (2 * dx)
+    
+                    d_chiF_dCdx = (chi_F[i + 1, j, k] * dCdx - chi_F[i - 1, j, k] * dCdx) / (2 * dx)
+                    d_chiF_dCdy = (chi_F[i, j + 1, k] * dCdy - chi_F[i, j - 1, k] * dCdy) / (2 * dx)
+                    d_chiF_dCdz = (chi_F[i, j, k + 1] * dCdz - chi_F[i, j, k - 1] * dCdz) / (2 * dx)
+    
+                    div_chiF_gradC[i, j, k] = d_chiF_dCdx + d_chiF_dCdy + d_chiF_dCdz
+    
+        # Neumann
+        div_chiF_gradC[0, :, :] = div_chiF_gradC[1, :, :]
+        div_chiF_gradC[-1, :, :] = div_chiF_gradC[-2, :, :]
+    
+        div_chiF_gradC[:, 0, :] = div_chiF_gradC[:, 1, :]
+        div_chiF_gradC[:, -1, :] = div_chiF_gradC[:, -2, :]
+    
+        div_chiF_gradC[:, :, 0] = div_chiF_gradC[:, :, 1]
+        div_chiF_gradC[:, :, -1] = div_chiF_gradC[:, :, -2]
+    
+        return div_chiF_gradC
+        
     
     def fib_reaction(self, F, C, lapC):
         '''
